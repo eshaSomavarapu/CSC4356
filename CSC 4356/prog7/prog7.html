@@ -1,0 +1,190 @@
+<!--Sushira Somavarapu-->
+<!--ssomav1@lsu.edu -->
+<!--Field of grass with lighting effects -->
+
+<html>
+<head>
+  <html>
+  	<head>
+  		<script type="text/javascript" src="grass.js"></script>
+  		<script type="text/javascript" src="webgl-utils.js"></script>
+  		<script type="text/javascript" src="webgl-debug.js"></script>
+  		<script type="text/javascript" src="cuon-matrix.js"></script>
+  		<script type="text/javascript" src="cuon-utils.js"></script>
+  		<script type="text/javascript" src="prog7.js"></script>
+  	</head>
+  	<body onload="init()">
+  		<canvas id="webgl" width="500px" height="500px">
+  		This content requires <a href="http://get.webgl.org/">WebGL</a>.
+  		</canvas>
+  		<table>
+  			<tr>
+  				<td>Light direction X:</td>
+  				<td><input id="lightingInX" type="range"  min="-5.0" max="5.0" step="0.1" oninput="slider()"></td>
+  				<td id="lightingOutX">0</td>
+  			</tr>
+  			<tr>
+  				<td>Light direction Y:</td>
+  				<td><input id="lightingInY" type="range"  min="-5.0" max="5.0" step="0.1" oninput="slider()"></td>
+  				<td id="lightingOutY">0</td>
+  			</tr>
+  			<tr>
+  				<td>Light direction Z:</td>
+  				<td><input id="lightingInZ" type="range" min="-5.0" max="5.0" step="0.1" oninput="slider()"></td>
+  				<td id="lightingOutZ">0</td>
+  			</tr>
+  		</table>
+        <p><strong>Objective</strong></p>
+            <p>Implement a field of grass with a light sources moving across the grass along X, Y, Z axes.</p>
+            <p>Goal of the project was have an image similar to: http://i.imgur.com/1MDNZtY.jpg</p>
+        <p><strong>Introduction</strong></p>
+            <p>For this project, I decided to implement a field of grass that also has a light source that moves
+               along X, Y, Z axes. This allowed for creation of my own 3-D model using a modeling software. Therefore, I
+               have used blender, which supports 3D objects modeling. I have based this project on the concept learned in
+               the course is texture mapping has the ability to give each fragment a different color. We know that texture
+               coordinates range from 0 to 1. Since the texture of of model unwrapped should fit within a square. All we
+               have to do is assign each vertex a texture coordinate to the location within the square. This enables
+               communication between vertex shader and fragment shader through this varying attribute.
+           </p>
+        <p><strong>Blender</strong></p>
+            <p>As I mentioned earlier, I chose the approach to use a modeling software was to give better grasp on
+               modeling 3D images. This project enabled me to get a deeper understanding of constructing my own model
+               and as well as figuring out problems and conducting research on exporting the right file so you can
+               have it in the format that was necessary. Initially experimenting with blender,
+               I had a lot of trouble starting out because I was unable to find a good tutorial that was easy to follow
+               and that would go in-depth about the tools that allowed for creation of grass.
+               At last, after spending hours of bad tutorials on YouTube, I found one video that explained things in a
+               better fashion than other videos. I used this YouTube video to ultimately create my model which is a field
+               of grass.
+           </p>
+           <p>Model Developed in blender:&nbsp;http://i.imgur.com/hSIbxhL.jpg</p>
+        <p><strong>Converting Files</strong></p>
+            <p>By reading the stack exchange, I figured out that there was a way to export blender files to Wave front (.obj)
+               which produced a .obj file. Later, when I was sifting the website about the final project. I came across a
+               link under tools called jsobj. Then, I found a solution to converting my .obj file of grass into
+               JSON files which organized and converted the contents of my .obj file into similar files given previously
+               by Dr. Kooima, which contains arrays for normals, positions, texture coordinates, tangents, and triangles.
+           </p>
+        <p><strong>Implementation</strong></p>
+            <p>I started off this project by using my older implementation of project 6,
+               which uses lighting across different plane like X,Y,Z, and texture mapping to a chest.
+               However, for this project, we need a creation of my own model and texture.
+           </p>
+            <p>&nbsp;</p>
+            <p>There are two main things that are required for this project:</p>
+            <ul>
+                <li>grass.js: This file actually contains the model built in blender. It has tables of data that c
+                    ontain, vertex normals, vertex positions, triangle indices and texture coordinates.&nbsp;
+                </li>
+                <li>Grass Texture-01.png: This file actually contains the texture I created in Photoshop that would
+                    wrap around the model.
+                </li>
+            </ul>
+            <p>&nbsp;</p>
+            <p>Initialization:</p>
+            <ul>
+                <li>Get texture coordinates</li>
+                <li>Create model texture</li>
+                <li>Load the Texture using model Image, and model texture</li>
+                <li>Set the source of model image</li>
+                <li>Bind the texture to null</li>
+                <li>Enable Depth test</li>
+                <li>Request a animation frame</li>
+            </ul>
+            <p>Rendering:</p>
+            <ul>
+                <li>Create your matrixes for perspective, view and model transformations</li>
+                <li>At render time, clear the depth buffer along with the color buffer</li>
+                <li>Calling the slider function by defining the light position across X, Y, Z axes.</li>
+                <li>Call the lighting shader with use and use defined parameters when rendering</li>
+                <li>Draw the grass model using the lighting shader</li>
+            </ul>
+        <p><strong>Errors Encountered</strong></p>
+            <p>Cross Origin Request: When I gave a link to texture image, the browser through an error because that host
+               did not support cross-organ resource requests. Later, I hosted my texture on imgur locally and surpassed
+               this error.
+           </p>
+            <p>Texture bound to texture unit 0 is not renderable. It maybe non-power-of-2 and have incompatible texture
+               filtering: &nbsp;After reading the stack overflow article on a similar error another user encountered.
+               The solution which involved calls to bind the texture and draw elements in the onload function. After,
+               trying this solution within my implementation. I was unable to make it work. While debugging, the load
+               texture function stopped executing at draw elements. Therefore, after putting it back in model prototype
+               function. I executed the program, which returns the same error again.
+           </p>
+            <p>Finally, the chrome debugger stopped throwing any errors for debugging. Therefore, I started with my
+               init and draw functions set break points at the end of the function to see if it was passing everything
+               correctly. It went through both of these functions. But, I was unable to detect where the program was
+               going wrong since it passed all parameters with any being undefined. I used chest.js from project 5 to get
+               a better understanding of my project&rsquo;s errors. When I ran the program, a black and grey chest showed
+               up. Therefore, my program was unable to map the texture onto the model. Since, the debugger also didn&rsquo;t
+               provide any errors in the console made debugging very hard for this project.&nbsp;&nbsp;
+           </p>
+        <p><strong>Conclusion</strong></p>
+            <p>After implementing my project, I couldn&rsquo;t overcome my errors even though I had a good base for this
+               project which was working project 5. Also, it was hard to find a references or white paper articles or
+               tutorials explaining the implementation of field of grass. I applied what I learned over the course of the
+               semester within this project. I am glad I learnt a lot throughout the semester which implement this project,
+                even if it there&rsquo;s no output.
+            </p>
+            <p>Working on this project gave me a lot of experience with debugging, model creation, texture creation and use
+               of light sources along different axes such as X, Y, Z. It also allowed me to map different texture to a
+               new model. This project served as a great learning experience because I would love to take it further over
+               break to learn and reflect on my mistakes within this project.&nbsp;
+           </p>
+        <p><strong>References:</strong></p>
+            <p><a href="https://learnopengl.com/#!Advanced-OpenGL/Blending">https://learnopengl.com/#!Advanced-OpenGL/Blending</a>&nbsp;(Where the idea of field of grass stemmed from)</p>
+            <p><a href="https://www.youtube.com/watch?v=mZR_WKVYiX8">https://www.youtube.com/watch?v=mZR_WKVYiX8</a></p>
+            <p><a href="http://stackoverflow.com/questions/21954036/dartweb-gl-render-warning-texture-bound-to-texture-unit-0-is-not-renderable">http://stackoverflow.com/questions/21954036/dartweb-gl-render-warning-texture-bound-to-texture-unit-0-is-not-renderable</a></p>
+            <p><a href="http://blender.stackexchange.com/questions/408/how-can-i-use-my-blender-models-in-webgl">http://blender.stackexchange.com/questions/408/how-can-i-use-my-blender-models-in-webgl</a></p>
+        <p>&nbsp;</p>
+      <!--Postion vec4 but direction vec3-->
+  		</script>
+  		<script id="lightingVertexShader" type="x-shader/x-vertex">
+  		precision mediump float;
+  		varying vec3 fragmentColor;
+  		uniform mat4 projectionMatrix;
+  		uniform mat4 viewMatrix;
+  		uniform mat4 modelMatrix;
+  		uniform vec4 lightPosition;
+  		attribute vec4 vertexPosition;
+  		attribute vec3 vertexNormal;
+        attribute vec2 vertexTexCoord;
+        varying vec2 fragmentTexCoord;
+  		varying vec3 fragmentNormal;
+  		varying vec3 fragmentLight;
+  		varying vec3 fragmentView;
+  		void main(){
+  			mat4 modelViewMatrix = viewMatrix * modelMatrix;
+  			vec4 p = modelViewMatrix * vertexPosition;
+  			vec4 q = viewMatrix * lightPosition;
+  			fragmentNormal = normalize(mat3(modelViewMatrix) * vertexNormal);
+  			fragmentLight = normalize(vec3(q-p));
+  			fragmentView = normalize(vec3(-p));
+            fragmentTexCoord = vertexTexCoord;
+  			gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
+  		}
+  		</script>
+  		<script id="lightingFragmentShader" type="x-shader/x-fragment">
+  		precision mediump float;
+  		varying vec3 fragmentNormal;
+  		varying vec3 fragmentLight;
+  		varying vec3 fragmentView;
+        varying vec2 fragmentTexCoord;
+  		uniform sampler2D modelTexture;
+
+  		const vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+  		void main(){
+  			vec3 n = normalize(fragmentNormal);
+  			vec3 l = normalize(fragmentLight);
+  			vec3 v = normalize(fragmentView);
+  			vec3 h = normalize(l + v);
+  			float d = max(dot(n, l), 0.0);
+  			float s = pow(max(dot(n, h), 0.0), 15.0);
+            vec3 modelColor = texture2D(modelTexture, fragmentTexCoord).rgb;
+  			vec3 fragmentColor = modelColor * lightColor * d + lightColor * s;
+  			gl_FragColor = vec4(fragmentColor, 1.0);
+  		}
+  		</script>
+  	</body>
+  </html>

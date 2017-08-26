@@ -1,0 +1,162 @@
+<!--Sushira Somavarapu-->
+<!--ssomav1@lsu.edu -->
+
+
+<html>
+<head>
+<script type="text/javascript" src="cow.js"></script>
+<script type="text/javascript" src="teapot.js"></script>
+<script type="text/javascript" src="plane.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="webgl-debug.js"></script>
+<script type="text/javascript" src="cuon-matrix.js"></script>
+<script type="text/javascript" src="cuon-utils.js"></script>
+<script type="text/javascript" src="prog4.js"></script>
+</head>
+
+<body onload="init()">
+<canvas id="webgl" width="500px" height="500px">
+This content requires <a href="http://get.webgl.org/">WebGL</a>.
+</canvas>
+<!--Gooch Shader -->
+<script id="goochVertexShader" type="x-shader/x-vertex">
+precision mediump float;
+varying vec3 fragmentColor;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+
+const vec4 lightPosition = vec4(1.0, 1.0, 1.0, 1.0);
+
+attribute vec4 vertexPosition;
+attribute vec3 vertexNormal;
+
+varying vec3 fragmentNormal;
+varying vec3 fragmentLight;
+varying vec3 fragmentView;
+
+void main()
+{
+  mat4 modelViewMatrix = viewMatrix * modelMatrix;
+
+  vec4 p = modelViewMatrix * vertexPosition;
+  vec4 q = viewMatrix * lightPosition;
+
+  fragmentNormal = normalize(mat3(modelViewMatrix) * vertexNormal);
+  fragmentLight = normalize(vec3(q-p));
+  fragmentView = normalize(vec3(-p));
+
+  gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
+}
+</script>
+<script id="goochFragmentShader" type="x-shader/x-fragment">
+precision mediump float;
+
+varying vec3 fragmentNormal;
+varying vec3 fragmentLight;
+varying vec3 fragmentView;
+
+void main()
+{
+  vec3 n = normalize(fragmentNormal);
+  vec3 v = normalize(fragmentView);
+
+  float d = pow(max(dot(n, v), 0.0), 0.6);
+  vec3 fragmentColor = mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 1.0, 0.0), d);
+  gl_FragColor = vec4(fragmentColor, 1.0);
+}
+</script>
+<!--Rainbow Shader -->
+<script id="rainbowVertexShader" type="x-shader/x-vertex">
+precision mediump float;
+varying vec3 fragmentPosition;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+
+attribute vec4 vertexPosition;
+attribute vec3 vertexNormal;
+
+void main()
+{
+  fragmentPosition = vec3(vertexPosition);
+  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
+}
+</script>
+<script id="rainbowFragmentShader" type="x-shader/x-fragment">
+precision mediump float;
+varying vec3 fragmentPosition;
+
+void main()
+{
+  if (fragmentPosition.y > 0.8)
+  gl_FragColor = vec4(0.1, 0.5, 0.1, 1.0);
+  else if (fragmentPosition.y > 0.6)
+  gl_FragColor = vec4(0.3, 0.1,0.8, 1.0);
+  else if (fragmentPosition.y > 0.2)
+  gl_FragColor = vec4(0.5, 0.2, 0.5, 1.0);
+  else
+  gl_FragColor = vec4(0.0, 0.6, 0.8, 1.0);
+}
+</script>
+
+<!--Rainbow Shader -->
+<script id="lightingVertexShader" type="x-shader/x-vertex">
+precision mediump float;
+varying vec3 fragmentColor;
+
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
+
+const vec4 lightPosition = vec4(1.0, 1.0, 1.0, 1.0);
+
+attribute vec4 vertexPosition;
+attribute vec3 vertexNormal;
+
+varying vec3 fragmentNormal;
+varying vec3 fragmentLight;
+varying vec3 fragmentView;
+
+void main()
+{
+  mat4 modelViewMatrix = viewMatrix * modelMatrix;
+
+  vec4 p = modelViewMatrix * vertexPosition;
+  vec4 q = viewMatrix * lightPosition;
+
+  fragmentNormal = normalize(mat3(modelViewMatrix) * vertexNormal);
+  fragmentLight = normalize(vec3(q-p));
+  fragmentView = normalize(vec3(-p));
+
+  gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
+}
+</script>
+<script id="lightingFragmentShader" type="x-shader/x-fragment">
+precision mediump float;
+
+varying vec3 fragmentNormal;
+varying vec3 fragmentLight;
+varying vec3 fragmentView;
+
+const vec3 modelColor = vec3 (1.0, 1.0, 1.0);
+const vec3 lightColor = vec3(0.6, 0.4, 0.2);
+
+void main()
+{
+  vec3 n = normalize(fragmentNormal);
+  vec3 l = normalize(fragmentLight);
+  vec3 v = normalize(fragmentView);
+  vec3 h = normalize(l + v);
+
+  float d = max(dot(n, l), 0.0);
+  float s = pow(max(dot(n, h), 0.0), 15.0);
+
+  vec3 fragmentColor = modelColor * lightColor * d + lightColor * s;
+  gl_FragColor = vec4(fragmentColor, 1.0);
+}
+</script>
+</body>
+</html>

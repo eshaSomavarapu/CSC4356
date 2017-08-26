@@ -1,0 +1,89 @@
+<!--Sushira Somavarapu-->
+<!--ssomav1@lsu.edu -->
+
+<html>
+<head>
+  <html>
+  	<head>
+  		<script type="text/javascript" src="grass.js"></script>
+  		<script type="text/javascript" src="webgl-utils.js"></script>
+  		<script type="text/javascript" src="webgl-debug.js"></script>
+  		<script type="text/javascript" src="cuon-matrix.js"></script>
+  		<script type="text/javascript" src="cuon-utils.js"></script>
+  		<script type="text/javascript" src="prog5.js"></script>
+  	</head>
+  	<body onload="init()">
+  		<canvas id="webgl" width="500px" height="500px">
+  		This content requires <a href="http://get.webgl.org/">WebGL</a>.
+  		</canvas>
+  		<table>
+  			<tr>
+  				<td>Light direction X:</td>
+  				<td><input id="lightingInX" type="range"  min="-5.0" max="5.0" step="0.1" oninput="slider()"></td>
+  				<td id="lightingOutX">0</td>
+  			</tr>
+  			<tr>
+  				<td>Light direction Y:</td>
+  				<td><input id="lightingInY" type="range"  min="-5.0" max="5.0" step="0.1" oninput="slider()"></td>
+  				<td id="lightingOutY">0</td>
+  			</tr>
+  			<tr>
+  				<td>Light direction Z:</td>
+  				<td><input id="lightingInZ" type="range" min="-5.0" max="5.0" step="0.1" oninput="slider()"></td>
+  				<td id="lightingOutZ">0</td>
+  			</tr>
+  		</table>
+      <!--Postion vec4 but direction vec3-->
+  		</script>
+  		<script id="lightingVertexShader" type="x-shader/x-vertex">
+  		precision mediump float;
+  		varying vec3 fragmentColor;
+  		uniform mat4 projectionMatrix;
+  		uniform mat4 viewMatrix;
+  		uniform mat4 modelMatrix;
+  		uniform vec4 lightPosition;
+  		attribute vec4 vertexPosition;
+  		attribute vec3 vertexNormal;
+      attribute vec2 vertexTexCoord;
+      varying vec2 fragmentTexCoord;
+  		varying vec3 fragmentNormal;
+  		varying vec3 fragmentLight;
+  		varying vec3 fragmentView;
+  		void main()
+  		{
+  			mat4 modelViewMatrix = viewMatrix * modelMatrix;
+  			vec4 p = modelViewMatrix * vertexPosition;
+  			vec4 q = viewMatrix * lightPosition;
+  			fragmentNormal = normalize(mat3(modelViewMatrix) * vertexNormal);
+  			fragmentLight = normalize(vec3(q-p));
+  			fragmentView = normalize(vec3(-p));
+        fragmentTexCoord = vertexTexCoord;
+  			gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
+  		}
+  		</script>
+  		<script id="lightingFragmentShader" type="x-shader/x-fragment">
+  		precision mediump float;
+  		varying vec3 fragmentNormal;
+  		varying vec3 fragmentLight;
+  		varying vec3 fragmentView;
+      varying vec2 fragmentTexCoord;
+  		uniform sampler2D modelTexture;
+
+  		const vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+  		void main()
+  		{
+  			vec3 n = normalize(fragmentNormal);
+  			vec3 l = normalize(fragmentLight);
+  			vec3 v = normalize(fragmentView);
+  			vec3 h = normalize(l + v);
+  			float d = max(dot(n, l), 0.0);
+  			float s = pow(max(dot(n, h), 0.0), 15.0);
+        vec3 modelColor = texture2D(modelTexture, fragmentTexCoord).rgb;
+  			vec3 fragmentColor = modelColor * lightColor * d + lightColor * s;
+  			gl_FragColor = vec4(fragmentColor, 1.0);
+
+  		}
+  		</script>
+  	</body>
+  </html>
